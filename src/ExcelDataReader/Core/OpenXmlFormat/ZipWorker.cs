@@ -186,7 +186,7 @@ internal sealed partial class ZipWorker : IDisposable
             if (entry.FullName.EndsWith(".xml", StringComparison.Ordinal))
                 return new XmlWorkbookReader(XmlReader.Create(entry.Open(), XmlSettings), _worksheetPaths, _worksheetRelPaths);
             else if (entry.FullName.EndsWith(".bin", StringComparison.Ordinal))
-                return new BiffWorkbookReader(entry.Open(), _worksheetPaths);
+                return new BiffWorkbookReader(entry.Open(), _worksheetPaths, _worksheetRelPaths);
         }
 
         throw new Exceptions.HeaderException(Errors.ErrorZipNoOpenXml);
