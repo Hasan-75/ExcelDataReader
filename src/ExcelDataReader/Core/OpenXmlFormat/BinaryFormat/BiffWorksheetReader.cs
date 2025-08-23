@@ -128,7 +128,7 @@ internal sealed class BiffWorksheetReader(Stream stream, bool preparing) : BiffR
                 return ReadCell(null);
             case BoolError:
             case FormulaError:
-                return ReadCell(null, (CellError)buffer[8]);
+                return ReadCell(null, null, (CellError)buffer[8]);
 
             // Possibly we could do even better if we just read the
             // length and column index instead but this is a simpler change.
@@ -138,8 +138,8 @@ internal sealed class BiffWorksheetReader(Stream stream, bool preparing) : BiffR
             case String when preparing:
             case FormulaString when preparing:
             case BrtCellRString when preparing:
-            case SharedString when preparing:
-                return ReadCell(string.Empty);
+            //case SharedString when preparing:
+            //    return ReadCell(string.Empty);
 
             case Number:
                 return ReadCell(GetRkNumber(buffer, 8));
@@ -164,18 +164,27 @@ internal sealed class BiffWorksheetReader(Stream stream, bool preparing) : BiffR
                     return ReadCell(GetString(buffer, 9 + 4, length));
                 }
 
-            case SharedString:
-                return ReadCell((int)GetDWord(buffer, 8));
+            //case SharedString:
+            //    return ReadCell((int)GetDWord(buffer, 8));
+
+            case 494:
+                {
+                    var r = ReadRId(buffer, 0);
+                    var t1 = recordId;
+                    var t2 = recordLength;
+                    return ReadCell((int)GetDWord(buffer, 0), r);
+                }
+
             default:
                 return Record.Default;
         }
 
-        CellRecord ReadCell(object value, CellError? errorValue = null) 
+        CellRecord ReadCell(object value, string? refAttr = null, CellError? errorValue = null) 
         {
             int column = (int)GetDWord(buffer, 0);
             uint xfIndex = GetDWord(buffer, 4) & 0xffffff;
 
-            return new CellRecord(column, (int)xfIndex, null, value, errorValue);
+            return new CellRecord(column, (int)xfIndex, refAttr, value, errorValue);
         }
     }
 }

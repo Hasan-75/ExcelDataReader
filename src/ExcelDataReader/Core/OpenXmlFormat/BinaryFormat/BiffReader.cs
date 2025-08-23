@@ -34,6 +34,23 @@ internal abstract class BiffReader(Stream stream) : RecordReader
         return result;
     }
 
+    protected static string ReadRId(byte[] buffer, uint offset)
+    {
+        // Look for the "rId" pattern in Unicode (every other byte is 0x00)
+        for (uint i = offset; i < buffer.Length - 8; i++)
+        {
+            if (buffer[i] == 0x72 && buffer[i + 1] == 0x00 &&  // 'r'
+                buffer[i + 2] == 0x49 && buffer[i + 3] == 0x00 &&  // 'I'
+                buffer[i + 4] == 0x64 && buffer[i + 5] == 0x00)   // 'd'
+            {
+                // Found "rId" pattern, now read the number
+                char numberChar = (char)buffer[i + 6]; // The number character
+                return "rId" + numberChar;
+            }
+        }
+        return null; // Not found
+    }
+
     protected static int GetInt32(byte[] buffer, uint offset)
     {
         int result = buffer[offset + 3] << 24;

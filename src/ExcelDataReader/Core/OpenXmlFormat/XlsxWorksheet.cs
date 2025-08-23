@@ -182,7 +182,7 @@ internal sealed class XlsxWorksheet : IWorksheet
                     height = row.Hidden ? 0 : row.Height ?? DefaultRowHeight;
 
                     break;
-                case CellRecord cell when inSheetData:
+                case CellRecord cell:
                     // TODO What if we get a cell without a row?
                     var extendedFormat = Workbook.GetEffectiveCellStyle(cell.XfIndex, 0);
                     var hyperlink = null as string;
